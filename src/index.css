@@ -1,0 +1,124 @@
+/**
+ * ============================================
+ * ESTILOS GLOBAIS - Carômetro Digital
+ * ============================================
+ * Tailwind CSS + estilos customizados para
+ * animações e ajustes finos.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   RESET E BASE
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   SCROLLBAR CUSTOMIZADA
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ============================================
+   ANIMAÇÕES
+   ============================================ */
+
+/* Animação de entrada para modais */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Aplica animação nos cards do grid */
+.grid > div {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Stagger effect nos cards (cada card aparece com delay) */
+.grid > div:nth-child(1) { animation-delay: 0.02s; }
+.grid > div:nth-child(2) { animation-delay: 0.04s; }
+.grid > div:nth-child(3) { animation-delay: 0.06s; }
+.grid > div:nth-child(4) { animation-delay: 0.08s; }
+.grid > div:nth-child(5) { animation-delay: 0.10s; }
+.grid > div:nth-child(6) { animation-delay: 0.12s; }
+.grid > div:nth-child(7) { animation-delay: 0.14s; }
+.grid > div:nth-child(8) { animation-delay: 0.16s; }
+.grid > div:nth-child(9) { animation-delay: 0.18s; }
+.grid > div:nth-child(10) { animation-delay: 0.20s; }
+.grid > div:nth-child(11) { animation-delay: 0.22s; }
+.grid > div:nth-child(12) { animation-delay: 0.24s; }
+
+/* ============================================
+   UTILITÁRIOS CUSTOMIZADOS
+   ============================================ */
+
+/* Classe para esconder scrollbar mas manter scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Efeito de hover nos cards */
+.student-card-hover {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.student-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
