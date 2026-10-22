@@ -1,150 +1,171 @@
-# 📸 Carômetro Digital - EMEF Prof.ª Maria Aparecida Ujio
+# 📸 Carômetro Digital
+## EMEF Professora Maria Aparecida Ujio
 
-Sistema web para gestão do carômetro (mural de fotos) dos alunos da escola.
-
-## 🚀 Deploy no GitHub Pages
-
-### Pré-requisitos
-- Conta no GitHub
-- Git instalado na máquina
-- Node.js 18+ instalado
-
-### Passo a Passo
-
-#### 1. Criar o Repositório no GitHub
-
-```bash
-# No terminal, dentro da pasta do projeto:
-git init
-git add .
-git commit -m "Initial commit - Carômetro Digital"
-```
-
-Depois crie um repositório novo no GitHub (ex: `carometro-digital`) e faça o push:
-
-```bash
-git branch -M main
-git remote add origin https://github.com/SEU_USUARIO/carometro-digital.git
-git push -u origin main
-```
-
-#### 2. Ajustar o `vite.config.js` para GitHub Pages
-
-Abra o arquivo `vite.config.js` e adicione a propriedade `base`:
-
-```javascript
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  base: '/carometro-digital/', // ⬅️ ADICIONE ESTA LINHA (use o nome do seu repo)
-  server: {
-    host: "0.0.0.0",
-    port: 3000,
-    strictPort: true,
-    hmr: {
-      port: 3000,
-    },
-  },
-});
-```
-
-> ⚠️ **IMPORTANTE:** O valor de `base` deve ser o nome do seu repositório com `/` no início e no final.
-> - Se o repo é `carometro-digital` → `base: '/carometro-digital/'`
-> - Se o repo é `carometro-emef` → `base: '/carometro-emef/'`
-
-#### 3. Configurar GitHub Pages no Repositório
-
-1. Vá em **Settings** → **Pages**
-2. Em **Source**, selecione **GitHub Actions**
-3. O workflow já está configurado em `.github/workflows/deploy.yml`
-
-#### 4. Fazer Deploy
-
-```bash
-git add .
-git commit -m "Configure GitHub Pages deployment"
-git push
-```
-
-O GitHub Actions vai automaticamente:
-1. Instalar dependências
-2. Buildar o projeto
-3. Publicar em `https://SEU_USUARIO.github.io/carometro-digital/`
-
-### ✅ Pronto!
-
-Acesse: `https://SEU_USUARIO.github.io/carometro-digital/`
+Sistema web para visualização do carômetro (mural de fotos) dos alunos, baseado em **estrutura de pastas**.
 
 ---
 
-## 🛠️ Desenvolvimento Local
+## 🎯 Como Funciona
 
+O sistema lê as fotos organizadas em pastas e exibe automaticamente no carômetro:
+
+```
+public/turmas/
+├── 6A/
+│   ├── joao_silva.jpg      → "Joao Silva"
+│   ├── maria_santos.jpg    → "Maria Santos"
+│   └── pedro_lima.jpg      → "Pedro Lima"
+├── 6B/
+│   ├── ana_oliveira.jpg    → "Ana Oliveira"
+│   └── lucas_ferreira.jpg  → "Lucas Ferreira"
+└── manifest.json           ← Gerado automaticamente
+```
+
+**Regra simples:** Nome do arquivo = Nome do aluno (use underscore no lugar de espaços)
+
+---
+
+## 🚀 Instalação e Uso
+
+### 1. Instalar dependências
 ```bash
-# Instalar dependências
 npm install
+```
 
-# Rodar em modo desenvolvimento
+### 2. Criar pastas das turmas
+```bash
+cd public/turmas
+mkdir 6A 6B 6C 7A 7B 7C 8A 8B 8C 9A 9B 9C
+```
+
+### 3. Adicionar fotos dos alunos
+Coloque as fotos nas pastas das turmas correspondentes:
+```bash
+# Exemplo:
+# public/turmas/6A/joao_silva.jpg
+# public/turmas/6A/maria_santos.jpg
+```
+
+### 4. Gerar o manifest
+```bash
+node scripts/generate-manifest.js
+```
+
+### 5. Rodar o sistema
+```bash
 npm run dev
-
-# Buildar para produção
-npm run build
-
-# Preview do build
-npm run preview
 ```
 
-## 📋 Funcionalidades
-
-- ✅ Visualização do carômetro por turma
-- ✅ Cadastro de alunos com foto
-- ✅ Edição de dados e fotos
-- ✅ Remoção de alunos
-- ✅ Transferência entre turmas
-- ✅ Reordenação via drag-and-drop
-- ✅ 12 turmas pré-cadastradas (6º ao 9º ano, A/B/C)
-- ✅ Design responsivo (mobile/desktop)
-
-## 🏗️ Tecnologias
-
-- React 18 + TypeScript
-- Vite
-- Tailwind CSS
-- @dnd-kit (drag-and-drop)
-- localStorage (persistência)
-
-## 📁 Estrutura
-
-```
-src/
-├── App.tsx              → Componente raiz
-├── main.tsx             → Entry point
-├── index.css            → Estilos globais
-├── types/index.ts       → Interfaces TypeScript
-├── data/seed.ts         → Dados iniciais (turmas)
-├── utils/storage.ts     → Camada de persistência
-└── components/
-    ├── Layout.tsx       → Layout principal
-    ├── Sidebar.tsx      → Menu lateral
-    ├── Carometro.tsx    → Grid de fotos
-    ├── StudentCard.tsx  → Card do aluno
-    ├── StudentForm.tsx  → Formulário CRUD
-    ├── TransferModal.tsx → Modal de transferência
-    └── ConfirmDialog.tsx → Confirmação
-```
-
-## 📝 Próximos Passos (Backend Real)
-
-Quando quiser migrar para um backend:
-
-1. **Prisma + SQLite** para banco de dados
-2. **Express/Next.js API Routes** para endpoints
-3. **Multer** para upload de imagens no servidor
-4. **Autenticação** para proteger o sistema
+Acesse: **http://localhost:5173**
 
 ---
 
-Desenvolvido por [Seu Nome] - Estagiário de TI  
-EMEF Professora Maria Aparecida Ujio - 2024
+## 📋 Guia Rápido
+
+| Ação | Como fazer |
+|------|------------|
+| **Adicionar aluno** | Coloque foto em `public/turmas/[TURMA]/nome.jpg` |
+| **Remover aluno** | Delete a foto da pasta |
+| **Trocar foto** | Substitua o arquivo (mesmo nome) |
+| **Mover aluno** | Mova o arquivo para outra pasta de turma |
+| **Atualizar sistema** | Rode `node scripts/generate-manifest.js` |
+
+---
+
+## 📖 Documentação Completa
+
+Leia o **[GUIA-USO.md](GUIA-USO.md)** para instruções detalhadas, exemplos e dicas.
+
+---
+
+## 🛠️ Tecnologias
+
+- **React 18** + TypeScript
+- **Vite** (build tool)
+- **Tailwind CSS v4** (estilos)
+- **Node.js** (script de geração do manifest)
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+carometro/
+├── public/
+│   └── turmas/              ← SUAS FOTOS VÃO AQUI
+│       ├── 6A/              ← Pasta da turma
+│       ├── 6B/
+│       ├── 7A/
+│       └── manifest.json    ← Lista de alunos (gerado)
+├── scripts/
+│   └── generate-manifest.js ← Gera o manifest.json
+├── src/
+│   ├── App.tsx              ← Componente principal
+│   ├── components/          ← Componentes React
+│   ├── types/               ← Tipos TypeScript
+│   └── utils/
+│       └── manifestService.ts
+├── GUIA-USO.md              ← Guia completo de uso
+└── README.md                ← Este arquivo
+```
+
+---
+
+## 🌐 Deploy no GitHub Pages
+
+O sistema pode ser publicado no GitHub Pages gratuitamente!
+
+### Passo a passo:
+
+1. **Edite `vite.config.js`** e adicione:
+   ```javascript
+   base: '/carometro-digital/',  // Nome do seu repo
+   ```
+
+2. **Crie o repositório no GitHub** (público)
+
+3. **Faça push:**
+   ```bash
+   git init
+   git add .
+   git commit -m "Carômetro Digital"
+   git remote add origin https://github.com/SEU_USER/carometro-digital.git
+   git push -u origin main
+   ```
+
+4. **Ative o GitHub Pages:**
+   - Settings → Pages → Source: GitHub Actions
+
+5. **Acesse:** `https://SEU_USER.github.io/carometro-digital/`
+
+Leia **[GUIA-DEPLOY.md](GUIA-DEPLOY.md)** para instruções detalhadas.
+
+---
+
+## 💡 Vantagens desta Abordagem
+
+✅ **Simples** - Basta organizar arquivos em pastas  
+✅ **Sem banco de dados** - Tudo baseado em arquivos  
+✅ **Fácil de manter** - Qualquer pessoa consegue usar  
+✅ **Backup fácil** - Basta copiar a pasta `public/turmas/`  
+✅ **Sem upload** - Coloque as fotos direto nas pastas  
+✅ **Gratuito** - Hospede no GitHub Pages  
+
+---
+
+## 🤝 Contribuindo
+
+Este é um projeto interno da EMEF Professora Maria Aparecida Ujio.
+
+**Desenvolvido por:** [Seu Nome] - Estagiário de TI  
+**Contato:** [seu.email@escola.edu.br]
+
+---
+
+## 📝 Licença
+
+Uso interno da EMEF Professora Maria Aparecida Ujio.
+
+---
+
+**Feito com 💙 para a educação**

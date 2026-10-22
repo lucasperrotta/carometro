@@ -5,235 +5,199 @@
  * 
  * Carômetro Digital - EMEF Professora Maria Aparecida Ujio
  * 
- * Este é o componente principal que:
- * 1. Inicializa o storage (localStorage)
- * 2. Gerencia o estado global da aplicação
- * 3. Coordena a comunicação entre componentes
- * 4. Controla a exibição de modais
- * 
- * Arquitetura: Single Page Application (SPA)
- * com estado gerenciado via useState + localStorage.
+ * Versão baseada em estrutura de pastas:
+ * - Fotos organizadas em public/turmas/[TURMA]/
+ * - Nome do arquivo = nome do aluno
+ * - manifest.json gerado automaticamente
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Student } from './types';
-import { initializeStorage, removeStudent } from './utils/storage';
+import { Student, ClassRoom } from './types';
+import { getClasses, getStudentsByClass, clearManifestCache } from './utils/manifestService';
 import Layout from './components/Layout';
 import Carometro from './components/Carometro';
-import StudentForm from './components/StudentForm';
-import TransferModal from './components/TransferModal';
-import ConfirmDialog from './components/ConfirmDialog';
+import StudentInfoPanel from './components/StudentInfoPanel';
 
 const App: React.FC = () => {
   // ============================================
   // ESTADO DA APLICAÇÃO
   // ============================================
   
-  /** ID da turma atualmente selecionada */
+  const [classes, setClasses] = useState<ClassRoom[]>([]);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
-  
-  /** Controla exibição do modal de cadastro/edição */
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  
-  /** Aluno sendo editado (null = modo cadastro) */
-  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
-  
-  /** Controla exibição do modal de transferência */
-  const [isTransferOpen, setIsTransferOpen] = useState(false);
-  
-  /** Aluno selecionado para transferência */
-  const [transferringStudent, setTransferringStudent] = useState<Student | null>(null);
-  
-  /** Controla exibição do diálogo de confirmação de remoção */
-  const [isConfirmRemoveOpen, setIsConfirmRemoveOpen] = useState(false);
-  
-  /** Aluno selecionado para remoção */
-  const [removingStudent, setRemovingStudent] = useState<Student | null>(null);
-  
-  /** Counter para forçar re-render após mudanças */
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   // ============================================
-  // INICIALIZAÇÃO
+  // CARREGAMENTO INICIAL
   // ============================================
 
   /**
-   * Inicializa o storage na primeira renderização.
-   * Popula o localStorage com as turmas padrão.
+   * Carrega as turmas do manifest na inicialização.
    */
   useEffect(() => {
-    initializeStorage();
+    loadClasses();
   }, []);
 
-  // ============================================
-  // HANDLERS - Ações da Interface
-  // ============================================
+  /**
+   * Carrega os alunos quando a turma muda.
+   */
+  useEffect(() => {
+    if (selectedClassId) {
+      loadStudents(selectedClassId);
+    }
+  }, [selectedClassId]);
 
   /**
-   * Seleciona uma turma para exibição.
+   * Busca as turmas do manifest.json.
    */
+  const loadClasses = async () => {
+    setLoading(true);
+    try {
+      const data = await getClasses();
+      setClasses(data);
+    } catch (error) {
+      console.error('Erro ao carregar turmas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Busca os alunos de uma turma específica.
+   */
+  const loadStudents = async (classId: string) => {
+    try {
+      const data = await getStudentsByClass(classId);
+      setStudents(data);
+    } catch (error) {
+      console.error('Erro ao carregar alunos:', error);
+    }
+  };
+
+  // ============================================
+  // HANDLERS
+  // ============================================
+
   const handleSelectClass = useCallback((classId: string) => {
     setSelectedClassId(classId);
+    setSelectedStudent(null);
   }, []);
 
-  /**
-   * Abre o modal de cadastro de aluno.
-   */
-  const handleAddStudent = useCallback(() => {
-    setEditingStudent(null);
-    setIsFormOpen(true);
+  const handleSelectStudent = useCallback((student: Student) => {
+    setSelectedStudent(student);
   }, []);
 
-  /**
-   * Abre o modal de edição com os dados do aluno.
-   */
-  const handleEditStudent = useCallback((student: Student) => {
-    setEditingStudent(student);
-    setIsFormOpen(true);
+  const handleCloseStudentInfo = useCallback(() => {
+    setSelectedStudent(null);
   }, []);
 
-  /**
-   * Abre o diálogo de confirmação para remover aluno.
-   */
-  const handleRemoveStudent = useCallback((student: Student) => {
-    setRemovingStudent(student);
-    setIsConfirmRemoveOpen(true);
-  }, []);
-
-  /**
-   * Confirma e executa a remoção do aluno.
-   */
-  const confirmRemoveStudent = useCallback(() => {
-    if (removingStudent) {
-      removeStudent(removingStudent.id);
-      setIsConfirmRemoveOpen(false);
-      setRemovingStudent(null);
-      setRefreshKey((k) => k + 1); // Força re-render
+  const handleRefresh = useCallback(async () => {
+    clearManifestCache();
+    await loadClasses();
+    if (selectedClassId) {
+      await loadStudents(selectedClassId);
     }
-  }, [removingStudent]);
-
-  /**
-   * Abre o modal de transferência.
-   */
-  const handleTransferStudent = useCallback((student: Student) => {
-    setTransferringStudent(student);
-    setIsTransferOpen(true);
-  }, []);
-
-  /**
-   * Callback de sucesso após operações CRUD.
-   * Força re-render para atualizar a lista.
-   */
-  const handleSuccess = useCallback(() => {
-    setRefreshKey((k) => k + 1);
-  }, []);
+  }, [selectedClassId]);
 
   // ============================================
   // RENDER
   // ============================================
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando turmas...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Layout
+      classes={classes}
       selectedClassId={selectedClassId}
       onSelectClass={handleSelectClass}
-      onAddStudent={handleAddStudent}
+      onRefresh={handleRefresh}
     >
-      {/* Área principal - Carômetro */}
       {selectedClassId ? (
         <Carometro
-          key={refreshKey} // Re-renderiza quando dados mudam
-          selectedClassId={selectedClassId}
-          onEditStudent={handleEditStudent}
-          onRemoveStudent={handleRemoveStudent}
-          onTransferStudent={handleTransferStudent}
+          students={students}
+          classId={selectedClassId}
+          onSelectStudent={handleSelectStudent}
         />
       ) : (
-        // Tela inicial quando nenhuma turma está selecionada
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center max-w-lg">
-            <div className="text-7xl mb-6">🏫</div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-3">
-              Carômetro Digital
-            </h1>
-            <h2 className="text-lg text-gray-600 mb-2">
-              EMEF Professora Maria Aparecida Ujio
-            </h2>
-            <p className="text-gray-400 mb-8">
-              Selecione uma turma no menu lateral para visualizar e gerenciar
-              as fotos dos alunos.
-            </p>
-            
-            {/* Cards informativos */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                <div className="text-2xl mb-2">📸</div>
-                <h3 className="font-semibold text-blue-800 text-sm">Visualizar</h3>
-                <p className="text-xs text-blue-600 mt-1">
-                  Veja as fotos dos alunos organizadas por turma.
-                </p>
-              </div>
-              <div className="bg-green-50 border border-green-100 rounded-xl p-4">
-                <div className="text-2xl mb-2">✏️</div>
-                <h3 className="font-semibold text-green-800 text-sm">Gerenciar</h3>
-                <p className="text-xs text-green-600 mt-1">
-                  Cadastre, edite e remova alunos facilmente.
-                </p>
-              </div>
-              <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
-                <div className="text-2xl mb-2">🔄</div>
-                <h3 className="font-semibold text-purple-800 text-sm">Transferir</h3>
-                <p className="text-xs text-purple-600 mt-1">
-                  Mova alunos entre turmas sem perder dados.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <WelcomeScreen totalClasses={classes.length} />
       )}
 
-      {/* ============================================
-          MODAIS
-          ============================================ */}
-
-      {/* Modal de Cadastro/Edição de Aluno */}
-      <StudentForm
-        isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setEditingStudent(null);
-        }}
-        onSuccess={handleSuccess}
-        editStudent={editingStudent}
-        defaultClassId={selectedClassId || undefined}
-      />
-
-      {/* Modal de Transferência */}
-      <TransferModal
-        isOpen={isTransferOpen}
-        onClose={() => {
-          setIsTransferOpen(false);
-          setTransferringStudent(null);
-        }}
-        onSuccess={handleSuccess}
-        student={transferringStudent}
-      />
-
-      {/* Diálogo de Confirmação de Remoção */}
-      <ConfirmDialog
-        isOpen={isConfirmRemoveOpen}
-        title="Remover Aluno"
-        message={`Tem certeza que deseja remover "${removingStudent?.name}" do carômetro? Esta ação não pode ser desfeita.`}
-        confirmLabel="Sim, Remover"
-        cancelLabel="Não, Cancelar"
-        variant="danger"
-        onConfirm={confirmRemoveStudent}
-        onCancel={() => {
-          setIsConfirmRemoveOpen(false);
-          setRemovingStudent(null);
-        }}
-      />
+      {/* Painel de informações do aluno */}
+      {selectedStudent && (
+        <StudentInfoPanel
+          student={selectedStudent}
+          onClose={handleCloseStudentInfo}
+        />
+      )}
     </Layout>
   );
 };
+
+/**
+ * Tela de boas-vindas quando nenhuma turma está selecionada.
+ */
+const WelcomeScreen: React.FC<{ totalClasses: number }> = ({ totalClasses }) => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="text-center max-w-lg">
+      <div className="text-7xl mb-6">🏫</div>
+      <h1 className="text-3xl font-bold text-gray-800 mb-3">
+        Carômetro Digital
+      </h1>
+      <h2 className="text-lg text-gray-600 mb-2">
+        EMEF Professora Maria Aparecida Ujio
+      </h2>
+      <p className="text-gray-400 mb-8">
+        Selecione uma turma no menu lateral para visualizar as fotos dos alunos.
+      </p>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+        <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+          <div className="text-2xl mb-2">📸</div>
+          <h3 className="font-semibold text-blue-800 text-sm">Visualizar</h3>
+          <p className="text-xs text-blue-600 mt-1">
+            Veja as fotos dos alunos organizadas por turma.
+          </p>
+        </div>
+        <div className="bg-green-50 border border-green-100 rounded-xl p-4">
+          <div className="text-2xl mb-2">📁</div>
+          <h3 className="font-semibold text-green-800 text-sm">Organizar</h3>
+          <p className="text-xs text-green-600 mt-1">
+            Basta colocar as fotos nas pastas das turmas.
+          </p>
+        </div>
+        <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
+          <div className="text-2xl mb-2">🔄</div>
+          <h3 className="font-semibold text-purple-800 text-sm">Atualizar</h3>
+          <p className="text-xs text-purple-600 mt-1">
+            Rode o script para atualizar o carômetro.
+          </p>
+        </div>
+      </div>
+
+      {totalClasses === 0 && (
+        <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-left">
+          <p className="text-yellow-800 font-semibold mb-2">⚠️ Nenhuma turma encontrada</p>
+          <p className="text-yellow-700 text-sm">
+            Crie as pastas das turmas em <code className="bg-yellow-100 px-1 rounded">public/turmas/</code> e rode:
+          </p>
+          <code className="block mt-2 bg-yellow-100 text-yellow-900 px-3 py-2 rounded text-sm">
+            node scripts/generate-manifest.js
+          </code>
+        </div>
+      )}
+    </div>
+  </div>
+);
 
 export default App;

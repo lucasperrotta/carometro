@@ -1,0 +1,103 @@
+{
+  "generatedAt": "2024-01-15T10:00:00.000Z",
+  "totalTurmas": 12,
+  "totalAlunos": 0,
+  "turmas": [
+    {
+      "id": "6A",
+      "name": "6º Ano A",
+      "shift": "Manhã",
+      "year": 6,
+      "section": "A",
+      "students": []
+    },
+    {
+      "id": "6B",
+      "name": "6º Ano B",
+      "shift": "Manhã",
+      "year": 6,
+      "section": "B",
+      "students": []
+    },
+    {
+      "id": "6C",
+      "name": "6º Ano C",
+      "shift": "Manhã",
+      "year": 6,
+      "section": "C",
+      "students": []
+    },
+    {
+      "id": "7A",
+      "name": "7º Ano A",
+      "shift": "Manhã",
+      "year": 7,
+      "section": "A",
+      "students": []
+    },
+    {
+      "id": "7B",
+      "name": "7º Ano B",
+      "shift": "Manhã",
+      "year": 7,
+      "section": "B",
+      "students": []
+    },
+    {
+      "id": "7C",
+      "name": "7º Ano C",
+      "shift": "Manhã",
+      "year": 7,
+      "section": "C",
+      "students": []
+    },
+    {
+      "id": "8A",
+      "name": "8º Ano A",
+      "shift": "Manhã",
+      "year": 8,
+      "section": "A",
+      "students": []
+    },
+    {
+      "id": "8B",
+      "name": "8º Ano B",
+      "shift": "Manhã",
+      "year": 8,
+      "section": "B",
+      "students": []
+    },
+    {
+      "id": "8C",
+      "name": "8º Ano C",
+      "shift": "Manhã",
+      "year": 8,
+      "section": "C",
+      "students": []
+    },
+    {
+      "id": "9A",
+      "name": "9º Ano A",
+      "shift": "Manhã",
+      "year": 9,
+      "section": "A",
+      "students": []
+    },
+    {
+      "id": "9B",
+      "name": "9º Ano B",
+      "shift": "Manhã",
+      "year": 9,
+      "section": "B",
+      "students": []
+    },
+    {
+      "id": "9C",
+      "name": "9º Ano C",
+      "shift": "Manhã",
+      "year": 9,
+      "section": "C",
+      "students": []
+    }
+  ]
+}
