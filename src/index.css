@@ -2,13 +2,14 @@
  * ============================================
  * ESTILOS GLOBAIS - Carômetro Digital
  * ============================================
- * Tailwind CSS + estilos customizados para
- * animações e ajustes finos.
+ * Tailwind CSS v4 + estilos customizados.
+ * 
+ * IMPORTANTE: No Tailwind v4, usamos @import
+ * em vez de @tailwind directives.
  */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind CSS v4 - Import principal */
+@import "tailwindcss";
 
 /* ============================================
    RESET E BASE
@@ -57,7 +58,6 @@ body {
    ANIMAÇÕES
    ============================================ */
 
-/* Animação de entrada para modais */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -80,12 +80,10 @@ body {
   }
 }
 
-/* Aplica animação nos cards do grid */
 .grid > div {
   animation: fadeIn 0.3s ease-out forwards;
 }
 
-/* Stagger effect nos cards (cada card aparece com delay) */
 .grid > div:nth-child(1) { animation-delay: 0.02s; }
 .grid > div:nth-child(2) { animation-delay: 0.04s; }
 .grid > div:nth-child(3) { animation-delay: 0.06s; }
@@ -103,22 +101,10 @@ body {
    UTILITÁRIOS CUSTOMIZADOS
    ============================================ */
 
-/* Classe para esconder scrollbar mas manter scroll */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-/* Efeito de hover nos cards */
-.student-card-hover {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.student-card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
-    0 8px 10px -6px rgba(0, 0, 0, 0.1);
 }
